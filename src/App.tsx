@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ToDoItem from "./ToDoItem";
 import { Input } from "./components/ui/input";
 import { Button } from "./components/ui/button";
+import "./index.css";
 
 type toDoProps = {
   id: number
@@ -57,7 +58,7 @@ export default function App() {
     return <h2 className="text-center mt-10">"Loading todos.."</h2>
   }
 
-  return (<>
+  return (<div className="p-6">
     <h2 className="flex gap-2 mb-4">To do list: </h2>
     <div className="flex flex-col mb-8">
       <div className="w-1/2">
@@ -65,19 +66,19 @@ export default function App() {
           placeholder="Add a new todo"
           value={newToDo}
           onChange={(e) => setNewToDo(e.target.value)}
-          className="w-full"
+          className="w-full border-0"
         />
       </div>
-      <div style={{ marginTop: "16px" }}>
-        <Button onClick={addToDo}>
+      <div style={{ marginTop: "3px" }}>
+        <Button onClick={addToDo} className="font-bold text-blue-800 text-lg">
           Add
         </Button>
       </div>
     </div>
 
-    <ul className="space-y-2">
+    <ul className="space-y-1">
       {toDo?.map((toDo, key) =>
         (<ToDoItem key={key} toDoID={toDo.id} toDo={toDo.title} completed={toDo.completed} toggleComplete={toggleComplete} deleteToDo={deleteToDo}></ToDoItem>)
       )}</ul>
-  </>)
+  </div>)
 }

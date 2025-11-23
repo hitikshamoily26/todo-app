@@ -21,7 +21,7 @@ export default function ToDoItem({ toDoID, toDo, completed, toggleComplete, dele
             </span>
 
             <button
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 ml-2"
                 onClick={() => deleteToDo(toDoID)}
             >
                 Delete
