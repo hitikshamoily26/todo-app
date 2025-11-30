@@ -16,7 +16,7 @@ export default function App() {
   const [newToDo, setNewToDo] = useState<string>('')
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/todos?_limit=10")
+    fetch("/api/todos")
       .then((res) => res.json())
       .then((data: toDoProps[]) => {
         setToDo(data);
@@ -28,31 +28,61 @@ export default function App() {
       })
   }, [])
 
-  const toggleComplete = (id: number) => {
-    setToDo(prev =>
-      prev.map(todo =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    )
-  }
+  const deleteToDo = async (id: number) => {
+    const res = await fetch(`/api/todos/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ todos: toDo }) // send full list
+    });
 
-  const deleteToDo = (id: number) => {
-    setToDo(prev => prev.filter(todo => todo.id !== id));
+    const updated = await res.json();
+    setToDo(updated);
   };
 
-  const addToDo = () => {
+  const addToDo = async () => {
     if (newToDo.trim() === "") {
       alert("Please enter a todo")
       return;
     }
-    const newToDOItem: toDoProps = {
-      id: toDo.length + 1,
-      title: newToDo,
-      completed: false
-    }
-    setToDo([...toDo, newToDOItem]);
+
+    const res = await fetch("/api/todos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ todos: toDo, title: newToDo }),
+    });
+
+    const updated = await res.json();
+    setToDo(updated);
     setNewToDo("");
   }
+
+  const toggleComplete = async (id: number) => {
+    const todo = toDo.find(t => t.id === id);
+    if (!todo) return;
+
+    const res = await fetch(`/api/todos/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        todos: toDo,
+        updates: { completed: !todo.completed }
+      }),
+    });
+
+    const updated = await res.json();
+    setToDo(updated);
+  };
+
+  const updateTitle = async (id: number, newTitle: string) => {
+    const res = await fetch(`/api/todos/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ todos: toDo, updates: { title: newTitle } }),
+    });
+
+    const updated = await res.json();
+    setToDo(updated);
+  };
 
   if (loading) {
     return <h2 className="text-center mt-10">"Loading todos.."</h2>
@@ -62,23 +92,28 @@ export default function App() {
     <h2 className="flex gap-2 mb-4">To do list: </h2>
     <div className="flex flex-col mb-8">
       <div className="w-1/2">
+
         <Input
           placeholder="Add a new todo"
           value={newToDo}
           onChange={(e) => setNewToDo(e.target.value)}
           className="w-full border-0"
         />
+
       </div>
       <div style={{ marginTop: "3px" }}>
+
         <Button onClick={addToDo} className="font-bold text-blue-800 text-lg">
           Add
         </Button>
+
       </div>
     </div>
 
     <ul className="space-y-1">
       {toDo?.map((toDo, key) =>
-        (<ToDoItem key={key} toDoID={toDo.id} toDo={toDo.title} completed={toDo.completed} toggleComplete={toggleComplete} deleteToDo={deleteToDo}></ToDoItem>)
-      )}</ul>
+        (<ToDoItem key={key} toDoID={toDo.id} toDo={toDo.title} completed={toDo.completed} toggleComplete={toggleComplete} deleteToDo={deleteToDo} updateTitle={updateTitle}></ToDoItem>)
+      )}
+    </ul>
   </div>)
 }
